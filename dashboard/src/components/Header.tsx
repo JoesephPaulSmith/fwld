@@ -1,35 +1,25 @@
 import { useDashboardStore } from '@/store/dashboardStore';
 
 export function Header() {
-  const lakesData = useDashboardStore((state) => state.lakesData);
-
-  const dataUpdated = lakesData?.[0]?.updated
-    ? new Date(lakesData[0].updated).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      })
-    : null;
+  const toggleDrawer = useDashboardStore((state) => state.toggleDrawer);
 
   return (
     <header className="bg-gradient-to-r from-blue-900 to-blue-700 text-white shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <div>
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight">
-              Great Lakes Water Level Dashboard
-            </h1>
-            <p className="text-blue-200 text-sm mt-1">
-              Historical and forecast water levels for the Great Lakes Basin
-            </p>
-          </div>
-          {dataUpdated && (
-            <div className="text-sm text-blue-200">
-              <span className="hidden sm:inline">Data updated: </span>
-              <span className="font-medium text-white">{dataUpdated}</span>
-            </div>
-          )}
-        </div>
+      <div className="px-4 py-3 flex items-center">
+        <button
+          onClick={toggleDrawer}
+          className="p-2 rounded-lg hover:bg-white/20 transition-colors mr-3"
+          aria-label="Toggle menu"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+        <h1 className="flex-1 text-center text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight">
+          Great Lakes Water Level Dashboard
+        </h1>
+        {/* Spacer to balance the hamburger button */}
+        <div className="w-10" />
       </div>
     </header>
   );

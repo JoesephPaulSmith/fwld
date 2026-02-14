@@ -10,6 +10,16 @@ import type {
 } from '@/types';
 import { LAKE_CONFIGS } from '@/types';
 
+export const DEFAULT_SERIES_COLORS: Record<string, string> = {
+  monthly: '#00AAFF',
+  annual: '#0000FF',
+  period_of_record_mean: '#FF0000',
+  forecast: '#f59e0b',
+  record_max: '#dc2626',
+  record_min: '#2563eb',
+  record_mean: '#16a34a',
+};
+
 interface DashboardState {
   // Data
   lakesData: GreatLakesData | null;
@@ -32,6 +42,12 @@ interface DashboardState {
   // UI state
   isFullscreen: boolean;
   showForecast: boolean;
+  isDrawerOpen: boolean;
+
+  // Appearance
+  backgroundColor: string;
+  seriesColors: Record<string, string>;
+  verticalRange: number | null; // null = auto
 
   // Actions
   setLakesData: (data: GreatLakesData) => void;
@@ -44,6 +60,12 @@ interface DashboardState {
   toggleSeriesType: (seriesType: DataSeriesType) => void;
   setFullscreen: (fullscreen: boolean) => void;
   toggleForecast: () => void;
+  toggleDrawer: () => void;
+  setDrawerOpen: (open: boolean) => void;
+  setBackgroundColor: (color: string) => void;
+  setSeriesColor: (series: string, color: string) => void;
+  resetColors: () => void;
+  setVerticalRange: (range: number | null) => void;
   resetToDefaults: () => void;
 }
 
@@ -71,6 +93,10 @@ export const useDashboardStore = create<DashboardState>()(
       activeSeriesTypes: DEFAULT_SERIES_TYPES,
       isFullscreen: false,
       showForecast: true,
+      isDrawerOpen: false,
+      backgroundColor: '#ffffff',
+      seriesColors: { ...DEFAULT_SERIES_COLORS },
+      verticalRange: null,
 
       // Actions
       setLakesData: (data) => set({
@@ -101,7 +127,6 @@ export const useDashboardStore = create<DashboardState>()(
       toggleSeriesType: (seriesType) => set((state) => {
         const isActive = state.activeSeriesTypes.includes(seriesType);
         if (isActive) {
-          // Don't allow removing the last series type
           if (state.activeSeriesTypes.length === 1) return state;
           return {
             activeSeriesTypes: state.activeSeriesTypes.filter((t) => t !== seriesType),
@@ -116,23 +141,46 @@ export const useDashboardStore = create<DashboardState>()(
 
       toggleForecast: () => set((state) => ({ showForecast: !state.showForecast })),
 
+      toggleDrawer: () => set((state) => ({ isDrawerOpen: !state.isDrawerOpen })),
+
+      setDrawerOpen: (open) => set({ isDrawerOpen: open }),
+
+      setBackgroundColor: (color) => set({ backgroundColor: color }),
+
+      setSeriesColor: (series, color) => set((state) => ({
+        seriesColors: { ...state.seriesColors, [series]: color },
+      })),
+
+      resetColors: () => set({
+        seriesColors: { ...DEFAULT_SERIES_COLORS },
+        backgroundColor: '#ffffff',
+      }),
+
+      setVerticalRange: (range) => set({ verticalRange: range }),
+
       resetToDefaults: () => set({
         lakeConfigs: LAKE_CONFIGS,
         unitSystem: 'metric',
         timeRange: DEFAULT_TIME_RANGE,
         activeSeriesTypes: DEFAULT_SERIES_TYPES,
         showForecast: true,
+        backgroundColor: '#ffffff',
+        seriesColors: { ...DEFAULT_SERIES_COLORS },
+        verticalRange: null,
       }),
     }),
     {
       name: 'great-lakes-dashboard',
-      version: 2, // Bump to reset persisted state with new defaults
+      version: 3,
       partialize: (state) => ({
         lakeConfigs: state.lakeConfigs,
         unitSystem: state.unitSystem,
         timeRange: state.timeRange,
         activeSeriesTypes: state.activeSeriesTypes,
         showForecast: state.showForecast,
+        backgroundColor: state.backgroundColor,
+        seriesColors: state.seriesColors,
+        verticalRange: state.verticalRange,
       }),
     }
   )

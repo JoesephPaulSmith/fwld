@@ -59,7 +59,7 @@ export function TimeSlider() {
   };
 
   return (
-    <div className="bg-gray-50 border-b border-gray-200 px-4 py-4">
+    <div className="bg-gray-50 border-b border-gray-200 md:border-t md:border-t-blue-200/60 px-4 pt-2 pb-4">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <div className="flex-1">
@@ -154,8 +154,8 @@ export function TimeSlider() {
             </div>
           </div>
 
-          {/* Preset buttons */}
-          <div className="flex flex-wrap gap-2 sm:flex-col sm:gap-1">
+          {/* Preset buttons - mobile only (available in drawer on desktop) */}
+          <div className="flex flex-wrap gap-2 sm:flex-col sm:gap-1 md:hidden">
             {presetRanges.map((preset) => (
               <button
                 key={preset.label}
