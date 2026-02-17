@@ -17,7 +17,7 @@ export function Controls() {
     { id: 'annual', label: 'Annual Avg' },
     { id: 'record_max', label: 'Record Max' },
     { id: 'record_min', label: 'Record Min' },
-    { id: 'record_mean', label: 'Record Mean' },
+    { id: 'record_mean', label: 'Record Avg' },
     { id: 'period_of_record_mean', label: 'Period Mean' },
   ];
 

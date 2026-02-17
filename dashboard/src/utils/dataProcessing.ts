@@ -223,8 +223,8 @@ export function findActiveSeriesLabel(seriesType: DataSeriesType): string {
     annual: 'Annual Average',
     record_max: 'Record Maximum',
     record_min: 'Record Minimum',
-    record_mean: 'Record Mean',
-    period_of_record_mean: 'Period of Record Mean',
+    record_mean: 'Record Average',
+    period_of_record_mean: 'Period of Record Average',
     forecast: 'Coordinated Forecast',
   };
   return labels[seriesType];

@@ -83,8 +83,8 @@ export interface LakeConfig {
 
 export const LAKE_CONFIGS: LakeConfig[] = [
   { id: 'superior', name: 'Lake Superior', color: '#1e3a8a', visible: true },
-  { id: 'michigan_huron', name: 'Lakes Michigan-Huron', color: '#0891b2', visible: true },
-  { id: 'st_clair', name: 'Lake St. Clair', color: '#059669', visible: true },
+  { id: 'michigan_huron', name: 'Lake Michigan-Huron', color: '#0891b2', visible: true },
+  { id: 'st_clair', name: 'Lake St. Clair', color: '#059669', visible: false },
   { id: 'erie', name: 'Lake Erie', color: '#7c3aed', visible: true },
   { id: 'ontario', name: 'Lake Ontario', color: '#dc2626', visible: true },
 ];

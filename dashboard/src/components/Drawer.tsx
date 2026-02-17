@@ -18,8 +18,8 @@ const SERIES_OPTIONS: { id: DataSeriesType; label: string }[] = [
   { id: 'annual', label: 'Annual Average' },
   { id: 'record_max', label: 'Record Maximum' },
   { id: 'record_min', label: 'Record Minimum' },
-  { id: 'record_mean', label: 'Record Mean' },
-  { id: 'period_of_record_mean', label: 'Period of Record Mean' },
+  { id: 'record_mean', label: 'Record Average' },
+  { id: 'period_of_record_mean', label: 'Period of Record Average' },
 ];
 
 // Generate year-month options
@@ -221,7 +221,6 @@ export function Drawer() {
                   onChange={() => toggleLakeVisibility(lake.id)}
                   className="rounded border-gray-500 focus:ring-blue-500 bg-gray-700"
                 />
-                <span className="w-3 h-3 rounded-full" style={{ backgroundColor: lake.color }} />
                 <span className="text-sm">{lake.name}</span>
               </label>
             ))}
@@ -426,11 +425,27 @@ export function Drawer() {
               <div>
                 <h3 className="text-sm font-semibold text-gray-200 mb-2">Great Lakes Water Level Dashboard</h3>
                 <p className="text-sm text-gray-300 leading-relaxed">
-                  This dashboard provides historical and forecast water level data for the
-                  Great Lakes Basin. Data is sourced from the Coordinating Committee on
+                  This dashboard displays historical and forecast lakewide average water level data for the
+                  North American Laurentian Great Lakes Basin. Data are sourced from the Coordinating Committee on
                   Great Lakes Basic Hydraulic and Hydrologic Data (CCGLBHHD) and represents
                   monthly lakewide averages from 1918 to present.
                 </p>
+                <br />
+                <a 
+                  href="https://www.glerl.noaa.gov/data/wlevels/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sm text-blue-300 hover:text-blue-200 transition-colors"
+                >
+                  <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                  </svg>
+                  <span>
+                    General information on the development of these water level data
+                    can be found on the NOAA Great Lakes Environmental Research Laboratory's
+                    water levels webpage
+                  </span>
+                </a><br />
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-gray-200 mb-2">Data Sources &amp; Partners</h3>
@@ -453,7 +468,28 @@ export function Drawer() {
               </div>
               <div className="pt-2 border-t border-gray-700">
                 <p className="text-xs text-gray-500 text-center">
-                  Original development by Joseph Smith (CIGLR)
+                  <a 
+                    href="https://jpTheSmithe.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-sm text-blue-300 hover:text-blue-200 transition-colors"
+                  >
+                    <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                    </svg>
+                    <span>Original dashboard development by Joeseph Smith</span>
+                  </a><br />
+                  <a
+                    href="https://doi.org/10.1016/j.envsoft.2015.12.005"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-sm text-blue-300 hover:text-blue-200 transition-colors"
+                  >
+                    <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                    </svg>
+                    <span>View Paper</span>
+                  </a>
                 </p>
               </div>
             </div>

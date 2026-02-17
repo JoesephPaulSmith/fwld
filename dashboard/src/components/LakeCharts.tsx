@@ -80,12 +80,12 @@ function computeLakeMinMax(
     }
   }
 
-  // Period of record mean
+  // Period of record Average
   if (activeSeriesTypes.includes('period_of_record_mean') && waterLevelData.series.period_of_record_mean) {
     allValues.push(convertDataToUnit(waterLevelData.series.period_of_record_mean, unitSystem));
   }
 
-  // Record max/min/mean
+  // Record max/min/Average
   if (waterLevelData.series.calendar_month_records) {
     const startDate = parseMonthDate(timeRange.start);
     const endDate = parseMonthDate(timeRange.end);

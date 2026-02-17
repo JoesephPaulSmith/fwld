@@ -44,6 +44,16 @@ export function LakeChart({ lake, config, height, hideXAxis, showLakeNameAsYLabe
 
     let xAxisMax = endDate;
 
+    // Tooltip lookup: monthKey "YYYY-MM" -> { seriesName: value }
+    const tooltipLookup: Record<string, Record<string, number | [number, number]>> = {};
+    const seriesColorMap: Record<string, string> = {};
+    const seriesTypeMap: Record<string, string> = {}; // 'line' or 'custom'
+
+    function addTooltipEntry(monthKey: string, seriesName: string, value: number | [number, number]) {
+      if (!tooltipLookup[monthKey]) tooltipLookup[monthKey] = {};
+      tooltipLookup[monthKey][seriesName] = value;
+    }
+
     // Monthly averages
     if (activeSeriesTypes.includes('monthly')) {
       const filteredMonthly = filterMonthlyData(waterLevelData.series.monthly, timeRange);
@@ -61,8 +71,11 @@ export function LakeChart({ lake, config, height, hideXAxis, showLakeNameAsYLabe
         if (i < filteredMonthly.length - 1) {
           monthlyData.push({ value: [end + 1, null] });
         }
+        addTooltipEntry(point.date, 'Monthly Average', value);
       }
 
+      seriesColorMap['Monthly Average'] = COLORS.monthly;
+      seriesTypeMap['Monthly Average'] = 'line';
       series.push({
         name: 'Monthly Average',
         type: 'line',
@@ -97,9 +110,16 @@ export function LakeChart({ lake, config, height, hideXAxis, showLakeNameAsYLabe
           annualData.push([visibleStart.getTime(), value]);
           annualData.push([visibleEnd.getTime(), value]);
           segmentCount++;
+          // Add to tooltip for each month of this year
+          for (let m = visibleStart.getMonth(); m <= (visibleEnd.getFullYear() === year ? visibleEnd.getMonth() : 11); m++) {
+            const mk = `${year}-${String(m + 1).padStart(2, '0')}`;
+            addTooltipEntry(mk, 'Annual Average', value);
+          }
         }
       }
 
+      seriesColorMap['Annual Average'] = COLORS.annual;
+      seriesTypeMap['Annual Average'] = 'line';
       series.push({
         name: 'Annual Average',
         type: 'line',
@@ -112,11 +132,20 @@ export function LakeChart({ lake, config, height, hideXAxis, showLakeNameAsYLabe
       });
     }
 
-    // Period of record mean
+    // Period of record Average
     if (activeSeriesTypes.includes('period_of_record_mean') && waterLevelData.series.period_of_record_mean) {
       const mean = convertDataToUnit(waterLevelData.series.period_of_record_mean, unitSystem);
+      // Add to tooltip for every month in range
+      let cur = startOfMonth(startDate);
+      while (cur <= endDate) {
+        const mk = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}`;
+        addTooltipEntry(mk, 'Period of Record Average', mean);
+        cur = addMonths(cur, 1);
+      }
+      seriesColorMap['Period of Record Average'] = COLORS.period_of_record_mean;
+      seriesTypeMap['Period of Record Average'] = 'line';
       series.push({
-        name: 'Period of Record Mean',
+        name: 'Period of Record Average',
         type: 'line',
         data: [[startDate.getTime(), mean], [endDate.getTime(), mean]],
         lineStyle: { color: COLORS.period_of_record_mean, width: 2 },
@@ -143,10 +172,14 @@ export function LakeChart({ lake, config, height, hideXAxis, showLakeNameAsYLabe
           recordMaxData.push([start, value]);
           recordMaxData.push([end, value]);
           segmentCount++;
+          const mk = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+          addTooltipEntry(mk, 'Record Maximum', value);
         }
         currentDate = addMonths(currentDate, 1);
       }
 
+      seriesColorMap['Record Maximum'] = COLORS.record_max;
+      seriesTypeMap['Record Maximum'] = 'line';
       series.push({
         name: 'Record Maximum',
         type: 'line',
@@ -176,10 +209,14 @@ export function LakeChart({ lake, config, height, hideXAxis, showLakeNameAsYLabe
           recordMinData.push([start, value]);
           recordMinData.push([end, value]);
           segmentCount++;
+          const mk = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+          addTooltipEntry(mk, 'Record Minimum', value);
         }
         currentDate = addMonths(currentDate, 1);
       }
 
+      seriesColorMap['Record Minimum'] = COLORS.record_min;
+      seriesTypeMap['Record Minimum'] = 'line';
       series.push({
         name: 'Record Minimum',
         type: 'line',
@@ -192,7 +229,7 @@ export function LakeChart({ lake, config, height, hideXAxis, showLakeNameAsYLabe
       });
     }
 
-    // Record mean
+    // Record Average
     if (activeSeriesTypes.includes('record_mean') && waterLevelData.series.calendar_month_records) {
       const recordMeanData: ([number, number] | { value: [number, number | null] })[] = [];
       let currentDate = startOfMonth(startDate);
@@ -209,12 +246,16 @@ export function LakeChart({ lake, config, height, hideXAxis, showLakeNameAsYLabe
           recordMeanData.push([start, value]);
           recordMeanData.push([end, value]);
           segmentCount++;
+          const mk = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
+          addTooltipEntry(mk, 'Record Average', value);
         }
         currentDate = addMonths(currentDate, 1);
       }
 
+      seriesColorMap['Record Average'] = COLORS.record_mean;
+      seriesTypeMap['Record Average'] = 'line';
       series.push({
-        name: 'Record Mean',
+        name: 'Record Average',
         type: 'line',
         data: recordMeanData,
         lineStyle: { color: COLORS.record_mean, width: 1.5 },
@@ -239,8 +280,11 @@ export function LakeChart({ lake, config, height, hideXAxis, showLakeNameAsYLabe
           const end = endOfMonth(date).getTime();
           forecastBarData.push([start, end, low, high]);
           if (endOfMonth(date) > xAxisMax) xAxisMax = endOfMonth(date);
+          addTooltipEntry(point.date, 'Forecast Range', [low, high]);
         }
 
+        seriesColorMap['Forecast Range'] = COLORS.forecast;
+        seriesTypeMap['Forecast Range'] = 'custom';
         series.push({
           name: 'Forecast Range',
           type: 'custom',
@@ -273,41 +317,51 @@ export function LakeChart({ lake, config, height, hideXAxis, showLakeNameAsYLabe
       },
       tooltip: {
         trigger: 'axis',
+        confine: true,
+        appendTo: 'body',
         axisPointer: {
           type: 'line',
+          snap: false,
           lineStyle: { color: '#999', width: 1, type: 'dashed' },
         },
         formatter: (params: unknown) => {
-          if (!Array.isArray(params) || params.length === 0) return '';
-          const firstParam = params[0] as { axisValue: number };
-          const date = new Date(firstParam.axisValue);
-          let content = `<div style="font-weight:bold;margin-bottom:4px">${format(date, 'MMMM yyyy')}</div>`;
-          const items = params as Array<{
-            seriesName: string;
-            value: [number, number] | [number, number, number, number];
-            color: string;
-            seriesType: string;
-          }>;
-          const seen = new Set<string>();
-          for (const item of items) {
-            if (!seen.has(item.seriesName)) {
-              seen.add(item.seriesName);
-              const isCustom = item.seriesType === 'custom';
-              const marker = isCustom
-                ? `<span style="display:inline-block;width:12px;height:12px;background:${item.color};opacity:0.6;margin-right:4px;"></span>`
-                : `<span style="display:inline-block;width:16px;height:3px;background:${item.color};margin-right:4px;vertical-align:middle;"></span>`;
-              let valueText = '';
-              if (isCustom && Array.isArray(item.value) && item.value.length === 4) {
-                valueText = `${item.value[2].toFixed(2)} - ${item.value[3].toFixed(2)} ${unitLabel}`;
-              } else if (item.value && typeof item.value[1] === 'number') {
-                valueText = `${item.value[1].toFixed(2)} ${unitLabel}`;
-              } else {
-                continue;
-              }
-              content += `<div style="display:flex;justify-content:space-between;gap:12px;align-items:center">`;
-              content += `<span>${marker}${item.seriesName}:</span>`;
-              content += `<span style="font-weight:500">${valueText}</span></div>`;
+          // Determine hovered timestamp
+          let timestamp: number;
+          if (Array.isArray(params) && params.length > 0) {
+            timestamp = (params[0] as { axisValue: number }).axisValue;
+          } else {
+            return '';
+          }
+          const hoveredDate = new Date(timestamp);
+          const monthKey = `${hoveredDate.getFullYear()}-${String(hoveredDate.getMonth() + 1).padStart(2, '0')}`;
+          const monthData = tooltipLookup[monthKey];
+          if (!monthData) return '';
+
+          let content = `<div style="font-weight:bold;margin-bottom:4px">${format(hoveredDate, 'MMMM yyyy')}</div>`;
+
+          // Show all series that have data for this month, in a stable order
+          const seriesOrder = [
+            'Monthly Average', 'Annual Average', 'Period of Record Average',
+            'Record Maximum', 'Record Minimum', 'Record Average', 'Forecast Range',
+          ];
+
+          for (const name of seriesOrder) {
+            const val = monthData[name];
+            if (val === undefined) continue;
+            const color = seriesColorMap[name] || '#999';
+            const isCustom = seriesTypeMap[name] === 'custom';
+            const marker = isCustom
+              ? `<span style="display:inline-block;width:12px;height:12px;background:${color};opacity:0.6;margin-right:4px;"></span>`
+              : `<span style="display:inline-block;width:16px;height:3px;background:${color};margin-right:4px;vertical-align:middle;"></span>`;
+            let valueText: string;
+            if (Array.isArray(val)) {
+              valueText = `${val[0].toFixed(2)} - ${val[1].toFixed(2)} ${unitLabel}`;
+            } else {
+              valueText = `${val.toFixed(2)} ${unitLabel}`;
             }
+            content += `<div style="display:flex;justify-content:space-between;gap:12px;align-items:center">`;
+            content += `<span>${marker}${name}:</span>`;
+            content += `<span style="font-weight:500">${valueText}</span></div>`;
           }
           return content;
         },
