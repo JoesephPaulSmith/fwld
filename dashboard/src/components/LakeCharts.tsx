@@ -8,7 +8,6 @@ import {
   convertDataToUnit,
   filterMonthlyData,
 } from '@/utils/dataProcessing';
-import { getUnitLabel } from '@/utils/unitConversion';
 import type { Lake } from '@/types';
 import { startOfMonth, addMonths } from 'date-fns';
 import { parseMonthDate } from '@/utils/dataProcessing';

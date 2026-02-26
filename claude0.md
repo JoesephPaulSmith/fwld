@@ -1,5 +1,7 @@
 # Fresh Water Lakes Dashboard
 
+I skipped writing this all out in favor of having Claude analyze the old code base first. The trimming from there.
+
 # Project Context
 
 When creating and working with this codebase, prioritize readability over cleverness. Organization of files and components for this codebase is critical. Ask clarifying questions before making architectural changes. 
