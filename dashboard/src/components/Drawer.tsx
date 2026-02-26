@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { useDashboardStore, DEFAULT_SERIES_COLORS } from '@/store/dashboardStore';
 import type { DataSeriesType } from '@/types';
-import html2canvas from 'html2canvas';
+import { toPng } from 'html-to-image';
 
 const PARTNERS = [
   { name: 'CCGLBHHD', url: 'https://www.greatlakescc.org/en/home/', full: 'Coordinating Committee on Great Lakes Basic Hydraulic and Hydrologic Data' },
@@ -115,10 +115,10 @@ export function Drawer() {
     const el = document.getElementById('chart-area');
     if (!el) return;
     try {
-      const canvas = await html2canvas(el, { backgroundColor: null });
+      const dataUrl = await toPng(el);
       const link = document.createElement('a');
       link.download = 'great-lakes-dashboard.png';
-      link.href = canvas.toDataURL();
+      link.href = dataUrl;
       link.click();
     } catch (e) {
       console.error('Screenshot failed:', e);
@@ -140,7 +140,7 @@ export function Drawer() {
       {/* Backdrop */}
       {isDrawerOpen && (
         <div
-          className="fixed inset-0 bg-black/40 z-40 md:hidden"
+          className="fixed inset-0 bg-black/40 z-40"
           onClick={() => setDrawerOpen(false)}
         />
       )}
