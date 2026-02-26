@@ -10,12 +10,8 @@ import {
 } from '@/utils/dataProcessing';
 import { getUnitLabel } from '@/utils/unitConversion';
 import type { Lake } from '@/types';
-import { startOfMonth, endOfMonth, addMonths } from 'date-fns';
+import { startOfMonth, addMonths } from 'date-fns';
 import { parseMonthDate } from '@/utils/dataProcessing';
-
-interface UseMediaQueryResult {
-  isDesktop: boolean;
-}
 
 import React from 'react';
 
@@ -191,8 +187,6 @@ export function LakeCharts() {
   const desktopChartHeight = isDesktop
     ? Math.max(80, Math.floor((windowHeight - 52 - 100 - 73 - 16) / chartCount))
     : 280;
-
-  const unitLabel = getUnitLabel(unitSystem);
 
   if (isDesktop) {
     return (

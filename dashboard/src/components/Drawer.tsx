@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import { useDashboardStore, DEFAULT_SERIES_COLORS } from '@/store/dashboardStore';
 import type { DataSeriesType } from '@/types';
 import { toPng } from 'html-to-image';
