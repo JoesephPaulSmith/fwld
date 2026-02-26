@@ -274,36 +274,39 @@ export function LakeChart({ lake, config, height, hideXAxis, showLakeNameAsYLabe
 
         for (const point of forecastData.series.monthly_forecast) {
           const date = parseMonthDate(point.date);
+          const fStart = startOfMonth(date);
+          const fEnd = endOfMonth(date);
+          if (fStart > endDate || fEnd < startDate) continue;
           const high = convertDataToUnit(point.forecast_high, unitSystem);
           const low = convertDataToUnit(point.forecast_low, unitSystem);
-          const start = startOfMonth(date).getTime();
-          const end = endOfMonth(date).getTime();
-          forecastBarData.push([start, end, low, high]);
-          if (endOfMonth(date) > xAxisMax) xAxisMax = endOfMonth(date);
+          forecastBarData.push([fStart.getTime(), fEnd.getTime(), low, high]);
+          if (fEnd > xAxisMax) xAxisMax = fEnd;
           addTooltipEntry(point.date, 'Forecast Range', [low, high]);
         }
 
-        seriesColorMap['Forecast Range'] = COLORS.forecast;
-        seriesTypeMap['Forecast Range'] = 'custom';
-        series.push({
-          name: 'Forecast Range',
-          type: 'custom',
-          data: forecastBarData,
-          renderItem: (_params, api) => {
-            const startX = api.coord([api.value(0), 0])[0];
-            const endX = api.coord([api.value(1), 0])[0];
-            const lowY = api.coord([0, api.value(2)])[1];
-            const highY = api.coord([0, api.value(3)])[1];
-            return {
-              type: 'rect',
-              shape: { x: startX, y: highY, width: endX - startX, height: lowY - highY },
-              style: { fill: COLORS.forecast, opacity: 0.4, stroke: COLORS.forecast, lineWidth: 1 },
-            };
-          },
-          itemStyle: { color: COLORS.forecast },
-          z: 12,
-          encode: { x: [0, 1], y: [2, 3] },
-        });
+        if (forecastBarData.length > 0) {
+          seriesColorMap['Forecast Range'] = COLORS.forecast;
+          seriesTypeMap['Forecast Range'] = 'custom';
+          series.push({
+            name: 'Forecast Range',
+            type: 'custom',
+            data: forecastBarData,
+            renderItem: (_params, api) => {
+              const startX = api.coord([api.value(0), 0])[0];
+              const endX = api.coord([api.value(1), 0])[0];
+              const lowY = api.coord([0, api.value(2)])[1];
+              const highY = api.coord([0, api.value(3)])[1];
+              return {
+                type: 'rect',
+                shape: { x: startX, y: highY, width: endX - startX, height: lowY - highY },
+                style: { fill: COLORS.forecast, opacity: 0.4, stroke: COLORS.forecast, lineWidth: 1 },
+              };
+            },
+            itemStyle: { color: COLORS.forecast },
+            z: 12,
+            encode: { x: [0, 1], y: [2, 3] },
+          });
+        }
       }
     }
 

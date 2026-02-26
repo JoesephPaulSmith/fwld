@@ -1,9 +1,9 @@
 import { useMemo, useCallback } from 'react';
 import { useDashboardStore } from '@/store/dashboardStore';
+import { getWaterLevelData, getForecastData } from '@/utils/dataProcessing';
 import { format, parse, differenceInMonths, addMonths } from 'date-fns';
 
 const MIN_DATE = '1918-01';
-const CURRENT_DATE = new Date().toISOString().slice(0, 7);
 
 function parseDate(dateStr: string): Date {
   return parse(dateStr, 'yyyy-MM', new Date());
@@ -16,10 +16,30 @@ function formatDate(date: Date): string {
 export function TimeSlider() {
   const timeRange = useDashboardStore((state) => state.timeRange);
   const setTimeRange = useDashboardStore((state) => state.setTimeRange);
+  const lakesData = useDashboardStore((state) => state.lakesData);
+
+  const MAX_DATE = useMemo(() => {
+    let maxDateStr = new Date().toISOString().slice(0, 7);
+    if (lakesData) {
+      for (const lake of lakesData) {
+        const waterLevelData = getWaterLevelData(lake);
+        if (waterLevelData?.series.monthly.length) {
+          const last = waterLevelData.series.monthly.at(-1)!.date;
+          if (last > maxDateStr) maxDateStr = last;
+        }
+        const forecastData = getForecastData(lake);
+        if (forecastData?.series.monthly_forecast.length) {
+          const last = forecastData.series.monthly_forecast.at(-1)!.date;
+          if (last > maxDateStr) maxDateStr = last;
+        }
+      }
+    }
+    return formatDate(addMonths(parseDate(maxDateStr), 1));
+  }, [lakesData]);
 
   const totalMonths = useMemo(() => {
-    return differenceInMonths(parseDate(CURRENT_DATE), parseDate(MIN_DATE));
-  }, []);
+    return differenceInMonths(parseDate(MAX_DATE), parseDate(MIN_DATE));
+  }, [MAX_DATE]);
 
   const startValue = useMemo(() => {
     return differenceInMonths(parseDate(timeRange.start), parseDate(MIN_DATE));
@@ -45,12 +65,13 @@ export function TimeSlider() {
     }
   }, [startValue, setTimeRange, timeRange]);
 
+  const today = new Date().toISOString().slice(0, 7);
   const presetRanges = [
-    { label: 'All Time', start: MIN_DATE, end: CURRENT_DATE },
-    { label: 'Last 50 Years', start: formatDate(addMonths(parseDate(CURRENT_DATE), -600)), end: CURRENT_DATE },
-    { label: 'Last 20 Years', start: formatDate(addMonths(parseDate(CURRENT_DATE), -240)), end: CURRENT_DATE },
-    { label: 'Last 10 Years', start: formatDate(addMonths(parseDate(CURRENT_DATE), -120)), end: CURRENT_DATE },
-    { label: 'Last 5 Years', start: formatDate(addMonths(parseDate(CURRENT_DATE), -60)), end: CURRENT_DATE },
+    { label: 'All Time', start: MIN_DATE, end: today },
+    { label: 'Last 50 Years', start: formatDate(addMonths(parseDate(today), -600)), end: today },
+    { label: 'Last 20 Years', start: formatDate(addMonths(parseDate(today), -240)), end: today },
+    { label: 'Last 10 Years', start: formatDate(addMonths(parseDate(today), -120)), end: today },
+    { label: 'Last 5 Years', start: formatDate(addMonths(parseDate(today), -60)), end: today },
   ];
 
   const formatDisplayDate = (dateStr: string) => {
